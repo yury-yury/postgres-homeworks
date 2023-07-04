@@ -1,5 +1,5 @@
 """Скрипт для заполнения данными таблиц в БД Postgres."""
-from csv import DictReader
+from csv import DictReader, reader
 from typing import List, Tuple, Any
 import psycopg2
 
@@ -11,18 +11,14 @@ def read_csv_file(path_file: str) -> Tuple[List[str], list[Any]]:
         and a list of values in the form of a list of python tuples.
         """
     with open(path_file, 'r', encoding='utf-8') as csvf:
-        csv_reader = DictReader(csvf)
-        data_list: list = []
-        value_list: list = []
-        for row in csv_reader:
-            data_list.append(row)
-            list_values = list(row.values())
-            for i in range(len(list_values)):
-                if isinstance(list_values[i], str):
-                    list_values[i] = f"""'{list_values[i].replace("'", '"')}'"""
-            value_list.append(list_values)
-        list_key = list(data_list[0].keys())
-    return list_key, value_list
+        csv_reader = list(reader(csvf))
+        key_list: List[str] = csv_reader.pop(0)
+        value_list: List[list] = csv_reader
+        for row in value_list:
+            for i in range(len(row)):
+                if isinstance(row[i], str):
+                    row[i] = f"""'{row[i].replace("'", '"')}'"""
+    return key_list, value_list
 
 
 if __name__ == '__main__':
